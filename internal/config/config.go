@@ -7,36 +7,59 @@ import (
 )
 
 type Config struct {
-	Api ApiConfig `mapstructure:"api"`
+	Api       ApiConfig       `mapstructure:"api"`
 	DBService DBServiceConfig `mapstructure:"db_service"`
-	Kafka KafkaConfig `mapstructure:"kafka"`
-	Redis RedisConfig `mapstructure:"redis"`
-}	
+	Kafka     KafkaConfig     `mapstructure:"kafka"`
+	Redis     RedisConfig     `mapstructure:"redis"`
+}
 
 type ApiConfig struct {
-	HTTP HTTPConfig `mapstructure:"http"`
-	GRPC GRPCConfig `mapstructure:"grpc"`
+	HTTP HTTPConfig       `mapstructure:"http"`
+	GRPC GRPCClientConfig `mapstructure:"grpc"`
 }
 
 type DBServiceConfig struct {
-	GRPC GRPCConfig `mapstructure:"grpc"`
-	Postgres PostgresConfig `mapstructure:"postgres"`
+	GRPC     GRPCServerConfig `mapstructure:"grpc"`
+	Postgres PostgresConfig   `mapstructure:"postgres"`
+	Redis    RedisConfig      `mapstructure:"redis"`
 }
 
+type KafkaConfig struct {
+	Brokers []string `mapstructure:"brokers"`
+	Topic   string   `mapstructure:"topic"`
+}
 
+type RedisConfig struct {
+	Host     string `mapstructure:"host"`
+	Port     string `mapstructure:"port"`
+	Password string `mapstructure:"password"`
+	DB       int    `mapstructure:"db"`
+}
 
+type PostgresConfig struct {
+	Host     string `mapstructure:"host"`
+	Port     string `mapstructure:"port"`
+	User     string `mapstructure:"user"`
+	Password string `mapstructure:"password"`
+	DBName   string `mapstructure:"dbname"`
+}
 type HTTPConfig struct {
-	Host string `mapstructure:"host"`
-	Port string `mapstructure:"port"`
+	Host    string `mapstructure:"host"`
+	Port    string `mapstructure:"port"`
 	Timeout string `mapstructure:"timeout"`
 }
 
-type GRPCConfig struct {
-	Host string `mapstructure:"host"`
-	Port string `mapstructure:"port"`
+type GRPCClientConfig struct {
+	Host    string `mapstructure:"host"`
+	Port    string `mapstructure:"port"`
 	Timeout string `mapstructure:"timeout"`
 }
 
+type GRPCServerConfig struct {
+	Host    string `mapstructure:"host"`
+	Port    string `mapstructure:"port"`
+	Timeout string `mapstructure:"timeout"`
+}
 
 func Load() *Config {
 	viper.SetConfigName("config")

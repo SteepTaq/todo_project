@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/SteepTaq/todo_project/internal/dbservice/repository"
-	"github.com/SteepTaq/todo_project/pkg/proto/todo"
+	todo "github.com/SteepTaq/todo_project/pkg/proto/gen_proto/todo"
 )
 
 type TodoService interface {
@@ -17,6 +17,7 @@ type TodoService interface {
 
 type TodoService struct {
 	repo repository.PostgresRepository
+
 }
 
 func GRPCGetTask(ctx context.Context, req *todo.GetTaskRequest) (*todo.GetTaskResponse, error) {

@@ -9,13 +9,14 @@ api_service:
         timeout: '10s'
     kafka:
         brokers:
-                - 'localhost:9092'
+            - 'localhost:9092'
         topic: 'todo_topic'
 
 db_service:
     grpc:
         host: '0.0.0.0'
         port: '50051'
+        timeout: '10s'
     postgres:
         host: 'localhost'
         port: '5432'

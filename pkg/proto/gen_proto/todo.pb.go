@@ -667,7 +667,7 @@ const file_todo_proto_rawDesc = "" +
 	"UpdateTask\x12\x17.todo.UpdateTaskRequest\x1a\x18.todo.UpdateTaskResponse\x12?\n" +
 	"\n" +
 	"DeleteTask\x12\x17.todo.DeleteTaskRequest\x1a\x18.todo.DeleteTaskResponse\x12B\n" +
-	"\vGetAllTasks\x12\x18.todo.GetAllTasksRequest\x1a\x19.todo.GetAllTasksResponseB Z\x1egithub.com/todo/pkg/proto;todob\x06proto3"
+	"\vGetAllTasks\x12\x18.todo.GetAllTasksRequest\x1a\x19.todo.GetAllTasksResponseB'Z%github.com/SteepTaq/todo_project;todob\x06proto3"
 
 var (
 	file_todo_proto_rawDescOnce sync.Once

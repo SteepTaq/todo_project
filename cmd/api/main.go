@@ -3,7 +3,9 @@ package main
 import (
 	"database/sql"
 
+	"github.com/IBM/sarama"
 	"github.com/SteepTaq/todo_project/internal/config"
+	"github.com/SteepTaq/todo_project/internal/dbservice/client"
 	"github.com/go-chi/chi/v5"
 	"github.com/redis/go-redis/v9"
 )
@@ -14,7 +16,7 @@ type App struct {
 	router *chi.Mux
 }
 
-func NewApp(kafkaProducer *kafka.Producer, dbClient *client.DBServiceClient, redisClient *redis.Client) *App {
+func NewApp(kafkaProducer *sarama.Producer, dbClient *client.DBServiceClient, redisClient *redis.Client) *App {
 	return &App{
 		db:     dbClient,
 		redis:  redisClient,
