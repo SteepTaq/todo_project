@@ -1,12 +1,15 @@
-package model
+package domain
 
-import "time"
+import (
+	"time"
+)
 
-type Todo struct {
+// Task представляет модель задачи
+type Task struct {
 	ID          string    `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
-	Status      string    `json:"status"`
+	Status      string    `json:"completed"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }

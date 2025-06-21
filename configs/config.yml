@@ -1,21 +1,20 @@
 api_service:
     http:
-        host: 'localhost'
         port: '8080'
         timeout: '10s'
     grpc_db_service:
-        host: 'localhost'
-        port: '50051'
+        target: 'localhost:50051'
         timeout: '10s'
     kafka:
         brokers:
-            - 'localhost:9092'
-        topic: 'todo_topic'
+            - 'kafka1:9092'
+        topic: 'todo_events'
+    logger:
+        level: 'debug'
 
 db_service:
     grpc:
-        host: '0.0.0.0'
-        port: '50051'
+        target: '0.0.0.0:50051'
         timeout: '10s'
     postgres:
         host: 'localhost'
@@ -24,9 +23,14 @@ db_service:
         password: 'postgres'
         dbname: 'todo_db'
         sslmode: 'disable'
+        max_connections: 50 # Максимум соединений в пуле
+        max_idle_time: '5m'
     redis:
         host: 'localhost'
         port: '6379'
         db: 0
         password: ''
         timeout: '5s'
+        cache_ttl: '1h'
+    logger:
+        level: 'info'

@@ -3,7 +3,7 @@ version: '3.8'
 services:
     api:
         build:
-            context: ./cmd/api/main.go
+            context: ./cmd/api/
             dockerfile: Dockerfile
         container_name: todo_api
         ports:
@@ -14,7 +14,7 @@ services:
             - kafka
     dbservice:
         build:
-            context: ./cmd/dbservice/main.go
+            context: ./cmd/dbservice/
             dockerfile: Dockerfile
         container_name: todo_dbservice
         ports:

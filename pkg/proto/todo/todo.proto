@@ -4,7 +4,7 @@ package todo;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/SteepTaq/todo_project;todo";
+option go_package = "github.com/SteepTaq/todo_project/pkg/proto/gen/todo/v1;todov1";
 
 service TodoService {
     rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
@@ -73,4 +73,7 @@ enum TaskStatus {
     TASK_STATUS_COMPLETED = 2;
 }
 
-// protoc -I ./pkg/proto --go_out=./pkg/proto/gen_proto --go_opt=paths=source_relative --go-grpc_out=./pkg/proto/gen_proto --go-grpc_opt=paths=source_relative ./pkg/proto/todo.proto
+
+
+
+// protoc -I pkg/proto   pkg/proto/todo/*.proto   --go_out=pkg/proto/gen   --go_opt=paths=source_relative   --go-grpc_out=pkg/proto/gen   --go-grpc_opt=paths=source_relative
