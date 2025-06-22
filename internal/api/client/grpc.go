@@ -12,7 +12,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // DBClient представляет клиент для взаимодействия с gRPC сервисом
@@ -59,7 +58,7 @@ func (c *DBClient) GetTaskById(ctx context.Context, id string) (*domain.Task, er
 		"method", method,
 		"task_id", id,
 	)
-	req := &pb.GetTaskRequest{TaskId: id}
+	req := &pb.GetTaskRequest{Id: id}
 
 	_, err := c.client.GetTask(ctx, req)
 	if err != nil {
@@ -104,7 +103,6 @@ func (c *DBClient) CreateTask(ctx context.Context, title, description string) (*
 			Title:       title,
 			Description: description,
 			Status:      pb.TaskStatus_TASK_STATUS_PENDING,
-			CreatedAt:   timestamppb.Now(),
 		},
 	}
 

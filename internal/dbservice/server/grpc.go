@@ -39,10 +39,7 @@ func (s *GRPCServer) CreateTask(ctx context.Context, req *todov1.CreateTaskReque
 		Description: newTask.Description,
 		Status:      todov1.TaskStatus(todov1.TaskStatus_value[newTask.Status]),
 		CreatedAt:   timestamppb.New(newTask.CreatedAt),
-	}
-
-	if !newTask.UpdatedAt.IsZero() {
-		pbTask.UpdatedAt = timestamppb.New(newTask.UpdatedAt)
+		UpdatedAt:   timestamppb.New(newTask.UpdatedAt),
 	}
 
 	return &todov1.CreateTaskResponse{
@@ -52,7 +49,7 @@ func (s *GRPCServer) CreateTask(ctx context.Context, req *todov1.CreateTaskReque
 }
 
 func (s *GRPCServer) GetTask(ctx context.Context, req *todov1.GetTaskRequest) (*todov1.GetTaskResponse, error) {
-	task, err := s.service.GetTask(ctx, req.GetTaskId())
+	task, err := s.service.GetTask(ctx, req.GetId())
 	if err != nil {
 		if errors.Is(err, domain.ErrTaskNotFound) {
 			return nil, status.Error(codes.NotFound, "task not found")

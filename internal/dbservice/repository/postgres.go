@@ -83,8 +83,8 @@ func (r *PostgresRepo) GetTaskByID(ctx context.Context, id string) (*domain.Task
 }
 
 func (r *PostgresRepo) CreateTask(ctx context.Context, task *domain.Task) (*domain.Task, error) {
-	query := `INSERT INTO tasks (id, title, description, status, created_at) 
-              VALUES ($1, $2, $3, $4, $5)
+	query := `INSERT INTO tasks (id, title, description, status, created_at, updated_at) 
+              VALUES ($1, $2, $3, $4, $5, $6)
               RETURNING id, title, description, status, created_at, updated_at`
 
 	row := r.pool.QueryRow(ctx, query,
@@ -93,6 +93,7 @@ func (r *PostgresRepo) CreateTask(ctx context.Context, task *domain.Task) (*doma
 		task.Description,
 		task.Status,
 		task.CreatedAt,
+		task.UpdatedAt,
 	)
 
 	var createdTask domain.Task

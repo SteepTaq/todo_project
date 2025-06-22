@@ -32,7 +32,7 @@ message GetAllTasksResponse {
 }
 
 message GetTaskRequest {
-    string task_id = 1;
+    string id = 1;
 }
 
 message GetTaskResponse {
@@ -53,8 +53,7 @@ message UpdateTaskRequest {
 }
 
 message UpdateTaskResponse {
-    bool success = 1;
-    Task task = 2;
+    Task task = 1;
 }
 
 message DeleteTaskRequest { 

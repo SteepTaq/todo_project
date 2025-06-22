@@ -29,7 +29,7 @@ services:
         ports:
             - '5432:5432'
         volumes:
-            - ./postgres_data:/var/lib/postgresql/data
+            - ../postgres_data:/var/lib/postgresql/data
         environment:
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=postgres
@@ -42,7 +42,7 @@ services:
         ports:
             - '6379:6379'
         volumes:
-            - ./redis_data:/data
+            - ../redis_data:/data
         environment:
             - REDIS_PASSWORD=redis_password
         restart: unless-stopped

@@ -237,7 +237,7 @@ func (x *GetAllTasksResponse) GetTasks() []*Task {
 
 type GetTaskRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TaskId        string                 `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -272,9 +272,9 @@ func (*GetTaskRequest) Descriptor() ([]byte, []int) {
 	return file_todo_todo_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetTaskRequest) GetTaskId() string {
+func (x *GetTaskRequest) GetId() string {
 	if x != nil {
-		return x.TaskId
+		return x.Id
 	}
 	return ""
 }
@@ -465,8 +465,7 @@ func (x *UpdateTaskRequest) GetTask() *Task {
 
 type UpdateTaskResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	Task          *Task                  `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
+	Task          *Task                  `protobuf:"bytes,1,opt,name=task,proto3" json:"task,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -499,13 +498,6 @@ func (x *UpdateTaskResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UpdateTaskResponse.ProtoReflect.Descriptor instead.
 func (*UpdateTaskResponse) Descriptor() ([]byte, []int) {
 	return file_todo_todo_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *UpdateTaskResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
 }
 
 func (x *UpdateTaskResponse) GetTask() *Task {
@@ -628,9 +620,9 @@ const file_todo_todo_proto_rawDesc = "" +
 	"\x12GetAllTasksRequest\"7\n" +
 	"\x13GetAllTasksResponse\x12 \n" +
 	"\x05tasks\x18\x01 \x03(\v2\n" +
-	".todo.TaskR\x05tasks\")\n" +
-	"\x0eGetTaskRequest\x12\x17\n" +
-	"\atask_id\x18\x01 \x01(\tR\x06taskId\"1\n" +
+	".todo.TaskR\x05tasks\" \n" +
+	"\x0eGetTaskRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"1\n" +
 	"\x0fGetTaskResponse\x12\x1e\n" +
 	"\x04task\x18\x01 \x01(\v2\n" +
 	".todo.TaskR\x04task\"3\n" +
@@ -643,10 +635,9 @@ const file_todo_todo_proto_rawDesc = "" +
 	".todo.TaskR\x04task\"3\n" +
 	"\x11UpdateTaskRequest\x12\x1e\n" +
 	"\x04task\x18\x01 \x01(\v2\n" +
-	".todo.TaskR\x04task\"N\n" +
-	"\x12UpdateTaskResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1e\n" +
-	"\x04task\x18\x02 \x01(\v2\n" +
+	".todo.TaskR\x04task\"4\n" +
+	"\x12UpdateTaskResponse\x12\x1e\n" +
+	"\x04task\x18\x01 \x01(\v2\n" +
 	".todo.TaskR\x04task\",\n" +
 	"\x11DeleteTaskRequest\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\tR\x06taskId\"G\n" +

@@ -49,8 +49,9 @@ func (s *TaskService) CreateTask(ctx context.Context, task *domain.Task) (*domai
 		ID:          newID,
 		Title:       task.Title,
 		Description: task.Description,
-		Status:      "pending", 
+		Status:      "pending",
 		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 
 	createdTask, err := s.storage.CreateTask(ctx, newTask)
