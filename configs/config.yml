@@ -1,14 +1,14 @@
 api_service:
     http:
-        port: '8080'
+        port: '8081'
         timeout: '10s'
     grpc_db_service:
         target: 'localhost:50051'
         timeout: '10s'
     kafka:
         brokers:
-            - 'kafka1:9092'
-        topic: 'todo_events'
+            - 'localhost:9094'
+        topic: 'events'
     logger:
         level: 'debug'
 
@@ -31,6 +31,6 @@ db_service:
         db: 0
         password: ''
         timeout: '5s'
-        cache_ttl: '1h'
+        cache_ttl: '4m'
     logger:
         level: 'info'

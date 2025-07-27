@@ -1,0 +1,11 @@
+2025/07/11 23:23:33 Shutting down worker...
+2025/07/11 23:23:36 Worker started, connecting to localhost:9094, topic: events
+2025/07/11 23:23:46 read error: fetching message: EOF
+2025/07/11 23:24:02 read error: fetching message: EOF
+2025/07/11 23:24:17 read error: fetching message: EOF
+2025/07/11 23:24:18 Shutting down worker...
+2025/07/11 23:24:20 Worker started, connecting to localhost:9094, topic: events
+2025/07/11 23:24:20 Received: {"event":"task_created","task":{"id":"5b47b030-bc03-4dba-b19f-878bef0fae0b","title":"abofffba","description":"1448m","status":"TASK_STATUS_PENDING","created_at":"2025-07-11T19:54:14.004593Z","updated_at":"2025-07-11T19:54:14.004593Z"}}
+2025/07/11 23:24:20 Received: {"event":"task_created","task":{"id":"c1f4d57a-cd9f-40ab-90e5-74f7d2999cc0","title":"aboffаfba","description":"1448m","status":"TASK_STATUS_PENDING","created_at":"2025-07-11T19:57:35.346571Z","updated_at":"2025-07-11T19:57:35.346571Z"}}
+2025/07/11 23:24:20 Received: {"event":"task_created","task":{"id":"0906f1b5-b14a-42e2-937f-595c3cd75e53","title":"aboffаfba","description":"1448m","status":"TASK_STATUS_PENDING","created_at":"2025-07-11T20:22:55.020494Z","updated_at":"2025-07-11T20:22:55.020494Z"}}
+2025/07/11 23:26:04 Shutting down worker...

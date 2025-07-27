@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"strconv"
 	"time"
 
 	"github.com/SteepTaq/todo_project/internal/api/domain"
@@ -14,7 +15,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// DBClient представляет клиент для взаимодействия с gRPC сервисом
 type DBClient struct {
 	conn    *grpc.ClientConn
 	timeout time.Duration
@@ -22,7 +22,6 @@ type DBClient struct {
 	logger  *slog.Logger
 }
 
-// NewDBClient создает новый экземпляр DBClient
 func NewDBClient(target string, timeout time.Duration, logger *slog.Logger) (*DBClient, error) {
 	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -37,7 +36,6 @@ func NewDBClient(target string, timeout time.Duration, logger *slog.Logger) (*DB
 	}, nil
 }
 
-// Закрыть соединение
 func (c *DBClient) Close() {
 	if c.conn != nil {
 		c.conn.Close()
@@ -46,9 +44,44 @@ func (c *DBClient) Close() {
 
 }
 
-func (c *DBClient) GetAllTasks(ctx context.Context) (interface{}, error) {
-	// TODO: Реализовать вызов gRPC
-	return []interface{}{}, nil
+func (c *DBClient) GetAllTasks(ctx context.Context) ([]domain.Task, error) {
+	const method = "GetAllTasks"
+	start := time.Now()
+	c.logger.DebugContext(ctx, "gRPC call started",
+		"method", method,
+	)
+	req := &pb.GetAllTasksRequest{}
+
+	resp, err := c.client.GetAllTasks(ctx, req)
+	if err != nil {
+		grpcErr := handleGRPCError(err)
+		c.logger.ErrorContext(ctx, "gRPC call failed",
+			"method", method,
+			"error", grpcErr,
+			"duration", time.Since(start),
+		)
+		return nil, grpcErr
+	}
+	pbTasks := resp.GetTasks()
+	tasks := make([]domain.Task, 0, len(pbTasks))
+	for _, task := range pbTasks {
+		t := domain.Task{
+			ID:          task.TaskId,
+			Title:       task.Title,
+			Description: task.Description,
+			Status:      task.Status.String(),
+			CreatedAt:   task.CreatedAt.AsTime(),
+			UpdatedAt:   task.UpdatedAt.AsTime(),
+		}
+		tasks = append(tasks, t)
+	}
+
+	c.logger.DebugContext(ctx, "gRPC call completed",
+		"method", method,
+		"duration", time.Since(start),
+	)
+
+	return tasks, nil
 }
 
 func (c *DBClient) GetTaskById(ctx context.Context, id string) (*domain.Task, error) {
@@ -60,7 +93,7 @@ func (c *DBClient) GetTaskById(ctx context.Context, id string) (*domain.Task, er
 	)
 	req := &pb.GetTaskRequest{Id: id}
 
-	_, err := c.client.GetTask(ctx, req)
+	resp, err := c.client.GetTask(ctx, req)
 	if err != nil {
 		grpcErr := handleGRPCError(err)
 		c.logger.ErrorContext(ctx, "gRPC call failed",
@@ -71,6 +104,14 @@ func (c *DBClient) GetTaskById(ctx context.Context, id string) (*domain.Task, er
 		)
 		return nil, grpcErr
 	}
+	task := &domain.Task{
+		ID:          resp.Task.TaskId,
+		Title:       resp.Task.Title,
+		Description: resp.Task.Description,
+		Status:      resp.Task.Status.String(),
+		CreatedAt:   resp.Task.CreatedAt.AsTime(),
+		UpdatedAt:   resp.Task.UpdatedAt.AsTime(),
+	}
 
 	c.logger.DebugContext(ctx, "gRPC call completed",
 		"method", method,
@@ -78,15 +119,7 @@ func (c *DBClient) GetTaskById(ctx context.Context, id string) (*domain.Task, er
 		"duration", time.Since(start),
 	)
 
-	return nil, nil
-	// return &domain.Task{
-	// 	ID:          resp.Task.GetTaskId(),
-	// 	Title:       resp.Task.GetTitle(),
-	// 	Description: resp.Task.GetDescription(),
-	// 	Status:      pb.TaskStatus_name[int32(resp.Task.Status)],
-	// 	CreatedAt:   resp.Task.GetCreatedAt().AsTime(),
-	// 	UpdatedAt:   resp.Task.GetUpdatedAt().AsTime(),
-	// }, nil
+	return task, nil
 }
 
 func (c *DBClient) CreateTask(ctx context.Context, title, description string) (*domain.Task, error) {
@@ -112,12 +145,10 @@ func (c *DBClient) CreateTask(ctx context.Context, title, description string) (*
 		return nil, handleGRPCError(err)
 	}
 
-	// Проверяем успешность операции
 	if !resp.Success {
 		c.logger.Warn("DB service returned unsuccessful response", "duration", time.Since(start))
 		return nil, errors.New("failed to create task")
 	}
-	// Преобразуем protobuf ответ в доменную модель
 	task := &domain.Task{
 		ID:          resp.Task.TaskId,
 		Title:       resp.Task.Title,
@@ -135,9 +166,48 @@ func (c *DBClient) CreateTask(ctx context.Context, title, description string) (*
 	return task, nil
 }
 
-func (c *DBClient) UpdateTask(ctx context.Context, id int32, title, description string, completed bool) error {
-	// TODO: Реализовать вызов gRPC
-	return nil
+func (c *DBClient) UpdateTask(ctx context.Context, id, title, description string, status string) (*domain.Task, error) {
+	start := time.Now()
+	const method = "UpdateTask"
+	c.logger.DebugContext(ctx, "gRPC call started",
+		"method", method, "title", title)
+
+	ctx, cancel := context.WithTimeout(ctx, c.timeout)
+	defer cancel()
+	statuss, err := strconv.Atoi(status)
+	if err != nil {
+		return nil, err
+	}
+	pbStatus := pb.TaskStatus(int32(statuss))
+
+	req := &pb.UpdateTaskRequest{
+		Task: &pb.Task{
+			TaskId:      id,
+			Title:       title,
+			Description: description,
+			Status:      pbStatus,
+		},
+	}
+
+	resp, err := c.client.UpdateTask(ctx, req)
+	if err != nil {
+		c.logger.ErrorContext(ctx, "gRPC call failed", "error", err, "duration", time.Since(start))
+		return nil, handleGRPCError(err)
+	}
+
+	task := &domain.Task{
+		ID:          resp.Task.TaskId,
+		Title:       resp.Task.Title,
+		Description: resp.Task.Description,
+		Status:      resp.Task.Status.String(),
+		CreatedAt:   resp.Task.CreatedAt.AsTime(),
+		UpdatedAt:   resp.Task.UpdatedAt.AsTime(),
+	}
+
+	c.logger.DebugContext(ctx, "Task updated",
+		"method", method, "task_id", task.ID, "duration", time.Since(start))
+
+	return task, nil
 }
 
 func (c *DBClient) DeleteTask(ctx context.Context, id int32) error {

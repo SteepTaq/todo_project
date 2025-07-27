@@ -15,7 +15,7 @@ type Task struct {
 }
 
 var (
-	ErrTaskNotFound = errors.New("task not found")
-	ErrInvalidInput = errors.New("invalid input")
-	// ... другие ошибки
+	ErrTaskNotFound  = errors.New("task not found")
+	ErrInvalidInput  = errors.New("invalid input")
+	ErrTasksNotFound = errors.New("tasks not found")
 )

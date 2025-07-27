@@ -13,6 +13,7 @@ import (
 	"github.com/SteepTaq/todo_project/internal/api/client"
 	"github.com/SteepTaq/todo_project/internal/api/config"
 	"github.com/SteepTaq/todo_project/internal/api/handler"
+	"github.com/SteepTaq/todo_project/internal/api/kafka"
 	ctxLog "github.com/SteepTaq/todo_project/pkg/context"
 	"github.com/SteepTaq/todo_project/pkg/logger"
 
@@ -74,8 +75,12 @@ func App(ctx context.Context, cfg *config.Config, log *slog.Logger) error {
 		})
 	})
 
+	// Создать Kafka-продюсер
+	producer := kafka.NewProducer(cfg.Kafka.Brokers, cfg.Kafka.Topic)
+	defer producer.Close()
+
 	// Инициализация и регистрация обработчиков
-	todoHandler := handler.NewTodoHandler(cfg, dbClient)
+	todoHandler := handler.NewTodoHandler(cfg, dbClient, producer)
 	todoHandler.RegisterRoutes(r)
 
 	// Health check

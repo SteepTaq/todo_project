@@ -98,7 +98,7 @@ func app(ctx context.Context, cfg *config.Config, log *slog.Logger) error {
 
 	// Ожидание сигнала завершения
 	<-ctx.Done()
-	log.Info("shutting down server")
+	log.Info( "shutting down server")
 
 	// Graceful shutdown
 	grpcServer.GracefulStop()

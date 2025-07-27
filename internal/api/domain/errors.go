@@ -4,7 +4,6 @@ import (
 	"errors"
 )
 
-// Ошибки предметной области
 var (
 	ErrTaskNotFound       = errors.New("task not found")
 	ErrTaskAlreadyExists  = errors.New("task already exists")

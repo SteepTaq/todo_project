@@ -19,13 +19,13 @@ type TaskService struct {
 type TaskRepository interface {
 	CreateTask(ctx context.Context, task *domain.Task) (*domain.Task, error)
 	GetTaskByID(ctx context.Context, id string) (*domain.Task, error)
-	// ... другие методы
+	GetAllTasks(ctx context.Context) ([]*domain.Task, error)
+	UpdateTask(ctx context.Context, tasks *domain.Task) (*domain.Task, error)
 }
 
 type TaskCache interface {
 	SetTask(ctx context.Context, task *domain.Task) error
 	GetTask(ctx context.Context, id string) (*domain.Task, error)
-	// ... другие методы
 }
 
 func NewTaskService(storage TaskRepository, cache TaskCache, logger *slog.Logger) *TaskService {
@@ -42,7 +42,6 @@ func (s *TaskService) CreateTask(ctx context.Context, task *domain.Task) (*domai
 	if task.Title == "" {
 		return nil, domain.ErrInvalidInput
 	}
-	// Генерируем новый UUID, игнорируя переданный ID
 	newID := uuid.New().String()
 
 	newTask := &domain.Task{
@@ -69,6 +68,39 @@ func (s *TaskService) CreateTask(ctx context.Context, task *domain.Task) (*domai
 		"duration", time.Since(start))
 
 	return createdTask, nil
+}
+
+func (s *TaskService) UpdateTask(ctx context.Context, task *domain.Task) (*domain.Task, error) {
+	start := time.Now()
+
+	if task.Title == "" {
+		return nil, domain.ErrInvalidInput
+	}
+	
+	newTask := &domain.Task{
+		ID:          task.ID,
+		Title:       task.Title,
+		Description: task.Description,
+		Status:      task.Status,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	updatedTask, err := s.storage.UpdateTask(ctx, newTask)
+	if err != nil {
+		s.log.Error("failed to create task", "error", err)
+		return nil, err
+	}
+
+	if err := s.cache.SetTask(ctx, updatedTask); err != nil {
+		s.log.Warn("failed to cache task", "task_id", updatedTask.ID, "error", err)
+	}
+
+	s.log.Info("task updated",
+		"task_id", updatedTask.ID,
+		"duration", time.Since(start))
+
+	return updatedTask, nil
 }
 
 func (s *TaskService) GetTask(ctx context.Context, id string) (*domain.Task, error) {
@@ -100,4 +132,18 @@ func (s *TaskService) GetTask(ctx context.Context, id string) (*domain.Task, err
 		"duration", time.Since(start))
 
 	return task, nil
+}
+func (s *TaskService) GetAllTasks(ctx context.Context) ([]*domain.Task, error) {
+	start := time.Now()
+
+	tasks, err := s.storage.GetAllTasks(ctx)
+	if err != nil {
+		s.log.Error("failed to get tasks", "error", err)
+		return nil, err
+	}
+
+	s.log.Debug("task retrieved from storage",
+		"duration", time.Since(start))
+
+	return tasks, nil
 }

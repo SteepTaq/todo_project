@@ -23,27 +23,24 @@ type Config struct {
 	} `mapstructure:"kafka"`
 
 	Logger struct {
-		Level string `mapstructure:"level"` // "debug", "info", "warn", "error"
+		Level string `mapstructure:"level"` 
 	} `mapstructure:"logger"`
 }
 
 func LoadConfig() *Config {
 
-	viper.SetConfigName("config")    // Имя файла без расширения
-	viper.SetConfigType("yaml")      // Формат файла
-	viper.AddConfigPath(".")         // Ищем в текущей директории
-	viper.AddConfigPath("./configs") // Или в папке configs
+	viper.SetConfigName("config")   
+	viper.SetConfigType("yaml")      
+	viper.AddConfigPath(".")         
+	viper.AddConfigPath("./configs")
 
-	// Читаем конфигурационный файл
 	if err := viper.ReadInConfig(); err != nil {
 		panic("failed to read config: " + err.Error())
 	}
-	// Создаем субвипер для извлечения только api_service
 	subv := viper.Sub("api_service")
 	if subv == nil {
 		panic("missing 'api_service' section in config")
 	}
-	// Распарсим конфиг в структуру
 	var cfg Config
 	if err := subv.Unmarshal(&cfg); err != nil {
 		panic("failed to unmarshal config: " + err.Error())

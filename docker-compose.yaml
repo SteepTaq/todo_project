@@ -1,0 +1,94 @@
+version: '3.8'
+
+networks:
+    default:
+        driver: bridge
+
+services:
+    # kafka-worker:
+    #     build:
+    #         context: .
+    #         dockerfile: ./cmd/worker/Dockerfile
+    #     container_name: kafka-worker
+    #     environment:
+    #         - KAFKA_BROKERS=kafka:9092
+    #         - KAFKA_TOPIC=events
+    #         - LOG_FILE=
+    #     volumes:
+    #         - ./logs:/app
+    #     depends_on:
+    #         - kafka
+    #     networks:
+    #         - my-kafka-net
+    postgres:
+        image: postgres:17-alpine
+        container_name: todo_postgres
+        ports:
+            - '5432:5432'
+        volumes:
+            - ../postgres_data:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=todo_db
+            - POSTGRES_SSLMODE=disable
+        restart: unless-stopped
+
+    redis:
+        image: redis:7-alpine
+        container_name: todo_redis
+        ports:
+            - '6379:6379'
+        volumes:
+            - ../redis_data:/data
+        environment:
+            - REDIS_PASSWORD=redis_password
+        restart: unless-stopped
+        command: redis-server --appendonly yes
+
+    kafka:
+        image: bitnami/kafka:latest # Явно указываем версию
+        container_name: kafka
+        ports:
+            - '9092:9092' # Проброс порта на хост
+            - '9094:9094' # Проброс порта на хост
+        environment:
+            - KAFKA_ENABLE_KRAFT=yes
+            - KAFKA_CFG_PROCESS_ROLES=broker,controller
+            - KAFKA_CFG_NODE_ID=1
+            - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+              # Слушатели
+            - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9094
+
+            # Адреса для подключения (важно для внешних клиентов)
+            - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://host.docker.internal:9094
+
+            # Соответствие протоколов
+            - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+
+            # Основные настройки
+            - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+            - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+            - ALLOW_PLAINTEXT_LISTENER=yes
+            - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+            - KAFKA_CFG_NUM_PARTITIONS=3
+
+            # Для подключения с хоста
+            - KAFKA_CFG_ADVERTISED_HOST=host.docker.internal
+
+    kafka-ui:
+        image: provectuslabs/kafka-ui:latest
+        ports:
+            - '8080:8080'
+        environment:
+            KAFKA_CLUSTERS_0_NAME: local
+            KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+        depends_on:
+            - kafka
+
+    # Пример секции для redpanda-console (добавьте в свой compose, если нужно)
+
+volumes:
+    redis_data:
+    kafka_data:
+    postgres_data:

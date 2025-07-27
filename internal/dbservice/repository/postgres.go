@@ -82,6 +82,25 @@ func (r *PostgresRepo) GetTaskByID(ctx context.Context, id string) (*domain.Task
 	return &task, nil
 }
 
+func (r *PostgresRepo) GetAllTasks(ctx context.Context) ([]*domain.Task, error) {
+	rows, err := r.pool.Query(ctx, "SELECT * FROM tasks")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tasks []*domain.Task
+	for rows.Next() {
+		var task domain.Task
+		err := rows.Scan(&task.ID, &task.Title, &task.Description, &task.Status, &task.CreatedAt, &task.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, &task)
+	}
+	return tasks, nil
+}
+
 func (r *PostgresRepo) CreateTask(ctx context.Context, task *domain.Task) (*domain.Task, error) {
 	query := `INSERT INTO tasks (id, title, description, status, created_at, updated_at) 
               VALUES ($1, $2, $3, $4, $5, $6)
@@ -110,31 +129,28 @@ func (r *PostgresRepo) CreateTask(ctx context.Context, task *domain.Task) (*doma
 
 	return &createdTask, nil
 }
-func (r *PostgresRepo) UpdateTask(ctx context.Context, todo *domain.Task) error {
-	_, err := r.pool.Exec(ctx, "UPDATE todos SET title = $1, description = $2, status = $3, updated_at = $4 WHERE id = $5", todo.Title, todo.Description, todo.Status, todo.UpdatedAt, todo.ID)
-	return err
+func (r *PostgresRepo) UpdateTask(ctx context.Context, tasks *domain.Task) (*domain.Task, error) {
+	row := r.pool.QueryRow(ctx, "UPDATE tasks SET title = $1, description = $2, status = $3, updated_at = $4 WHERE id = $5 RETURNING id, title, description, status, created_at, updated_at",
+		tasks.Title,
+		tasks.Description,
+		tasks.Status,
+		tasks.UpdatedAt,
+		tasks.ID)
+	var updatedTask domain.Task
+	if err := row.Scan(
+		&updatedTask.ID,
+		&updatedTask.Title,
+		&updatedTask.Description,
+		&updatedTask.Status,
+		&updatedTask.CreatedAt,
+		&updatedTask.UpdatedAt,
+	); err != nil {
+		return nil, fmt.Errorf("failed to update task: %w", err)
+	}
+	return &updatedTask, nil
 }
 
 func (r *PostgresRepo) DeleteTask(ctx context.Context, id string) error {
-	_, err := r.pool.Exec(ctx, "DELETE FROM todos WHERE id = $1", id)
+	_, err := r.pool.Exec(ctx, "DELETE FROM tasks WHERE id = $1", id)
 	return err
-}
-
-func (r *PostgresRepo) GetAllTasks(ctx context.Context) ([]*domain.Task, error) {
-	rows, err := r.pool.Query(ctx, "SELECT * FROM todos")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var todos []*domain.Task
-	for rows.Next() {
-		var todo domain.Task
-		err := rows.Scan(&todo.ID, &todo.Title, &todo.Description, &todo.Status, &todo.CreatedAt, &todo.UpdatedAt)
-		if err != nil {
-			return nil, err
-		}
-		todos = append(todos, &todo)
-	}
-	return todos, nil
 }

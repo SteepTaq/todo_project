@@ -4,12 +4,11 @@ import (
 	"time"
 )
 
-// Task представляет модель задачи
 type Task struct {
 	ID          string    `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
-	Status      string    `json:"completed"`
+	Status      string    `json:"status"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
